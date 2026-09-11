@@ -1,0 +1,7 @@
+﻿services:
+  projecttodoserver:
+    image: projecttodoserver
+    build:
+      context: .
+      dockerfile: projectTodoServer/Dockerfile
+
