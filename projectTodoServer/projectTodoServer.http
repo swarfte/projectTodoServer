@@ -1,6 +1,22 @@
-@projectTodoServer_HostAddress = http://localhost:5003
+@host =  http://localhost:5003
 
-GET {{projectTodoServer_HostAddress}}/weatherforecast/
+### Health check
+GET {{host}}/api/health
 Accept: application/json
 
-###
+### Create Project
+POST {{host}}/api/collections/projects/records
+Content-Type: application/json
+Accept: application/json
+
+{
+    "name": "learning ASP.NET Core",
+    "userId": "test-user-001"   
+}
+
+### Get project by ID
+@projectId = 4b59d32680694ea4bce3b5a25e0a5071
+
+GET {{host}}/api/collections/projects/records/{{projectId}}
+Accept: application/json
+
