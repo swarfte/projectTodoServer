@@ -20,3 +20,6 @@ Accept: application/json
 GET {{host}}/api/collections/projects/records/{{projectId}}
 Accept: application/json
 
+### get project list
+GET {{host}}/api/collections/projects/records
+Accept: application/json
