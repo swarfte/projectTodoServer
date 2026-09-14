@@ -76,6 +76,54 @@ public class ProjectsController : ControllerBase
 
         return Ok(MapToResponse(project));
     }
+
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<ProjectResponse>> UpdateProject(
+        string id,
+        [FromBody] UpdateProjectRequest request,
+        CancellationToken cancellationToken)
+    {
+        var project = await _dbContext.Projects
+            .FirstOrDefaultAsync(
+                project => project.Id == id,
+                cancellationToken);
+
+        if (project is null)
+        {
+            return NotFound(new
+            {
+                code = 404,
+                message = "Project not found"
+            });
+        }
+
+        if (request.Name is null)
+        {
+            return BadRequest(new
+            {
+                code = 400,
+                message = "Project name is required"
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            ModelState.AddModelError(
+                nameof(request.Name),
+                    "Project name is required"
+                );
+
+            return ValidationProblem(ModelState);
+        }
+
+        project.Name = request.Name.Trim();
+        project.UpdatedAt = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return Ok(MapToResponse(project));
+    }
+
     
     [HttpGet]
     public async Task<ActionResult<ProjectListResponse>> GetProjects(
