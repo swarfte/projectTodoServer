@@ -83,6 +83,26 @@ public class ProjectsController : ControllerBase
         [FromBody] UpdateProjectRequest request,
         CancellationToken cancellationToken)
     {
+
+
+        if (request.Name is null)
+        {
+            return BadRequest(new
+            {
+                code = 400,
+                message = "Project name is required"
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest(new
+            {
+                code = 400,
+                message = "Project name cannot be empty."
+            });
+        }
+
         var project = await _dbContext.Projects
             .FirstOrDefaultAsync(
                 project => project.Id == id,
@@ -97,25 +117,6 @@ public class ProjectsController : ControllerBase
             });
         }
 
-        if (request.Name is null)
-        {
-            return BadRequest(new
-            {
-                code = 400,
-                message = "Project name is required"
-            });
-        }
-
-        if (string.IsNullOrWhiteSpace(request.Name))
-        {
-            ModelState.AddModelError(
-                nameof(request.Name),
-                    "Project name is required"
-                );
-
-            return ValidationProblem(ModelState);
-        }
-
         project.Name = request.Name.Trim();
         project.UpdatedAt = DateTime.UtcNow;
 
@@ -124,6 +125,32 @@ public class ProjectsController : ControllerBase
         return Ok(MapToResponse(project));
     }
 
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteProject(
+        string id,
+        CancellationToken cancellationToken)
+    {
+        var project = await _dbContext.Projects
+            .FirstOrDefaultAsync(
+                project => project.Id == id,
+                cancellationToken);
+
+        if (project is null)
+        {
+            return NotFound(new
+            {
+                code = 404,
+                message = "Project not found"
+            });
+        }
+
+        _dbContext.Projects.Remove(project);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return NoContent();
+    }
     
     [HttpGet]
     public async Task<ActionResult<ProjectListResponse>> GetProjects(
