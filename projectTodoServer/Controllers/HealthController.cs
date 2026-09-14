@@ -11,8 +11,7 @@ public class HealthController : ControllerBase
     {
         return Ok(new
         {
-            serverStatus = "ok",
-            databaseStatus = "ok",
+            status = "ok",
             serverTime = DateTimeOffset.UtcNow
         });
     }

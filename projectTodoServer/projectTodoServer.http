@@ -15,7 +15,7 @@ Accept: application/json
 }
 
 ### Get project by ID
-@projectId = 4b59d32680694ea4bce3b5a25e0a5071
+@projectId = 955eb9b8b06543c49c2086049308aeb8
 
 GET {{host}}/api/collections/projects/records/{{projectId}}
 Accept: application/json

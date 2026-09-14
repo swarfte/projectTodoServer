@@ -32,7 +32,7 @@ public class ProjectsController : ControllerBase
             return ValidationProblem(ModelState);
         }
 
-        var now = DateTimeOffset.UtcNow;
+        var now = DateTime.UtcNow;
 
         var project = new Project
         {

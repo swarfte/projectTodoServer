@@ -8,7 +8,7 @@ public class Project
 
     public string UserId { get; set; } = string.Empty;
 
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
