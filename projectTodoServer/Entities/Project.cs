@@ -11,4 +11,7 @@ public class Project
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    // this is navigation property
+    public ICollection<TaskItem> Tasks {get; set;} = new List<TaskItem>();
 }
