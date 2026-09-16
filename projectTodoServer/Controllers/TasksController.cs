@@ -154,4 +154,80 @@ public class TasksController : ControllerBase
             _ => DateTime.SpecifyKind(value.Value, DateTimeKind.Utc)
         };
     }
+
+    [HttpGet]
+    public async Task<ActionResult<TaskListResponse>> GetTasks(
+        [FromQuery] int page = 1,
+        [FromQuery] int perPage = 30,
+        [FromQuery] string? projectId = null,
+        [FromQuery] string? previousTaskId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (page < 1)
+        {
+            return BadRequest(new
+            {
+                code = 400,
+                message = "page must be greater than or equal to 1."
+            });
+        }
+
+        if (perPage < 1 || perPage > 100)
+        {
+            return BadRequest(new
+            {
+                code = 400,
+                message = "perPage must be between 1 and 100."
+            });
+        }
+
+        var query = _dbContext.TaskItems
+            .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(projectId))
+        {
+            var normalizedProjectId = projectId.Trim();
+
+            query = query.Where(
+                taskItem => taskItem.ProjectId == normalizedProjectId);
+        }
+
+        if (!string.IsNullOrWhiteSpace(previousTaskId))
+        {
+            var normalizedPreviousTaskId = previousTaskId.Trim();
+
+            query = query.Where(
+                taskItem =>
+                    taskItem.PreviousTaskId == normalizedPreviousTaskId);
+        }
+
+        var totalItems = await query.CountAsync(cancellationToken);
+
+        var skip = (page - 1) * perPage;
+
+        var taskItems = await query
+            .OrderByDescending(taskItem => taskItem.UpdatedAt)
+            .ThenByDescending(taskItem => taskItem.Id)
+            .Skip(skip)
+            .Take(perPage)
+            .ToListAsync(cancellationToken);
+
+        var totalPages = totalItems == 0
+            ? 0
+            : (int)Math.Ceiling(
+                totalItems / (double)perPage);
+
+        var response = new TaskListResponse
+        {
+            Page = page,
+            PerPage = perPage,
+            TotalItems = totalItems,
+            TotalPages = totalPages,
+            Items = taskItems
+                .Select(MapToResponse)
+                .ToList()
+        };
+
+        return Ok(response);
+    }
 }
